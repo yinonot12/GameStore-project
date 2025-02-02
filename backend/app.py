@@ -1,5 +1,4 @@
-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 from models import db
 from models.admin import Admin
@@ -8,11 +7,13 @@ from models.game import Game
 from models.loan import Loan
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # החלף במפתח סודי אמיתי
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game_store.db'
 db.init_app(app)
 
+# Endpoint להוספת משחק
 @app.route('/games', methods=['POST'])
 def add_game():
     data = request.json
@@ -26,6 +27,7 @@ def add_game():
     db.session.commit()
     return jsonify({'message': 'Game added to inventory.'}), 201
 
+# Endpoint להחזרת רשימת משחקים
 @app.route('/games', methods=['GET'])
 def get_games():
     try:
@@ -49,6 +51,7 @@ def get_games():
             'message': str(e)
         }), 500
 
+# Endpoint להוספת לקוח
 @app.route('/customers', methods=['POST'])
 def add_customer():
     data = request.json
@@ -61,6 +64,7 @@ def add_customer():
     db.session.commit()
     return jsonify({'message': 'Customer registered successfully.'}), 201
 
+# Endpoint להחזרת רשימת לקוחות
 @app.route('/customers', methods=['GET'])
 def get_customers():
     customers = Customer.query.all()
@@ -76,6 +80,27 @@ def get_customers():
         'message': 'Customers retrieved successfully',
         'customers': customers_list
     }), 200
+
+# Endpoint ל-Admin Login
+@app.route('/admin/login', methods=['POST'])
+def admin_login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    # חיפוש מנהל על פי שם משתמש
+    admin = Admin.query.filter_by(username=username).first()
+    if admin and admin.verify_password(password):  # נניח שקיימת מתודה זו
+        session['admin_id'] = admin.id  # שמירת מזהה המנהל ב-session
+        return jsonify({'message': 'Admin logged in successfully.'}), 200
+    else:
+        return jsonify({'error': 'Invalid credentials.'}), 401
+
+# Endpoint ל-Admin Logout
+@app.route('/admin/logout', methods=['POST'])
+def admin_logout():
+    session.pop('admin_id', None)
+    return jsonify({'message': 'Admin logged out successfully.'}), 200
 
 if __name__ == '__main__':
     with app.app_context():

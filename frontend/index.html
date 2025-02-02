@@ -2,16 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Store Management</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Store Admin Panel</title>
+  <!-- טעינת גופן Roboto מ-Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <style>
+    /* עיצוב כללי */
     body {
       font-family: 'Roboto', sans-serif;
       background-color: #f0f4f8;
       color: #333;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
@@ -23,15 +25,21 @@
       border-radius: 12px;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       max-width: 600px;
+      width: 100%;
       text-align: center;
+      margin-bottom: 20px;
     }
-    h1 {
-      font-size: 2.5rem;
+    h1, h2 {
       color: #007bff;
     }
-    p {
-      font-size: 1.2rem;
-      margin-top: 10px;
+    input[type="text"],
+    input[type="password"],
+    input[type="number"] {
+      width: 90%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
     .button {
       display: inline-block;
@@ -49,14 +57,128 @@
     .button:hover {
       background-color: #0056b3;
     }
+    .game-card {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 6px;
+      text-align: left;
+      background: #fafafa;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Game Store Management System</h1>
-    <p>Manage your games, customers, and loans easily!</p>
-    <a href="/games" class="button">View Games</a>
-    <a href="/customers" class="button">View Customers</a>
+  <!-- טופס לכניסת מנהל -->
+  <div id="login-container" class="container">
+    <h1>Admin Login</h1>
+    <input type="text" id="admin-username" placeholder="Username">
+    <input type="password" id="admin-password" placeholder="Password">
+    <button class="button" onclick="adminLogin()">Login</button>
   </div>
+
+  <!-- לוח ניהול לאחר לוגין מוצלח -->
+  <div id="admin-panel" class="container" style="display:none;">
+    <h1>Game Store Admin Panel</h1>
+    <button class="button" onclick="adminLogout()">Logout</button>
+
+    <h2>Add Game</h2>
+    <input type="text" id="game-title" placeholder="Title">
+    <input type="text" id="game-genre" placeholder="Genre">
+    <input type="number" id="game-price" placeholder="Price">
+    <input type="number" id="game-quantity" placeholder="Quantity">
+    <button class="button" onclick="addGame()">Add Game</button>
+
+    <h2>Game Inventory</h2>
+    <div id="games-list"></div>
+  </div>
+
+  <!-- טעינת ספריית Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    // פונקציה לכניסת מנהל
+    async function adminLogin() {
+      const username = document.getElementById('admin-username').value;
+      const password = document.getElementById('admin-password').value;
+      
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/admin/login', {
+          username: username,
+          password: password
+        });
+        alert(response.data.message);
+        // לאחר כניסה מוצלחת, מסתירים את טופס הלוגין ומציגים את לוח הניהול
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        // טוענים את רשימת המשחקים
+        getGames();
+      } catch (error) {
+        console.error('Error logging in:', error);
+        alert('Login failed. Please check your credentials.');
+      }
+    }
+
+    // פונקציה ליציאה ממערכת
+    async function adminLogout() {
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/admin/logout');
+        alert(response.data.message);
+        // מחזירים את טופס הלוגין ומסתירים את לוח הניהול
+        document.getElementById('login-container').style.display = 'block';
+        document.getElementById('admin-panel').style.display = 'none';
+      } catch (error) {
+        console.error('Error logging out:', error);
+        alert('Logout failed.');
+      }
+    }
+
+    // פונקציה לקבלת רשימת המשחקים מהשרת
+    async function getGames() {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/games');
+        const gamesList = document.getElementById('games-list');
+        gamesList.innerHTML = ''; // ניקוי הרשימה הקיימת
+        response.data.games.forEach(game => {
+          gamesList.innerHTML += `
+            <div class="game-card">
+              <h3>${game.title}</h3>
+              <p>Genre: ${game.genre}</p>
+              <p>Price: $${game.price}</p>
+              <p>Quantity: ${game.quantity}</p>
+            </div>
+          `;
+        });
+      } catch (error) {
+        console.error('Error fetching games:', error);
+        alert('Failed to load games');
+      }
+    }
+
+    // פונקציה להוספת משחק חדש
+    async function addGame() {
+      const title = document.getElementById('game-title').value;
+      const genre = document.getElementById('game-genre').value;
+      const price = document.getElementById('game-price').value;
+      const quantity = document.getElementById('game-quantity').value;
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/games', {
+          title: title,
+          genre: genre,
+          price: price,
+          quantity: quantity
+        });
+        alert(response.data.message);
+        // ניקוי שדות הקלט לאחר הוספה
+        document.getElementById('game-title').value = '';
+        document.getElementById('game-genre').value = '';
+        document.getElementById('game-price').value = '';
+        document.getElementById('game-quantity').value = '';
+        // רענון רשימת המשחקים
+        getGames();
+      } catch (error) {
+        console.error('Error adding game:', error);
+        alert('Failed to add game');
+      }
+    }
+  </script>
 </body>
 </html>
