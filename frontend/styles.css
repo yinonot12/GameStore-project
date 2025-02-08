@@ -1,42 +1,94 @@
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f0f4f8;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+.container {
+  background: rgba(255, 255, 255, 0.9); /* שקיפות עדינה */
+  padding: 40px 60px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  max-width: 600px;
+  text-align: center;
+  transform: translateY(-50px);
+  animation: slideIn 0.6s ease-out forwards;
+}
+
+h1 {
+  font-size: 3rem;
+  color: #007bff;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+p {
+  font-size: 1.3rem;
+  margin-top: 15px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.button {
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+.button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+}
+
+.button:active {
+  transform: scale(0.98);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+}
+
+@keyframes slideIn {
+  from {
+      transform: translateY(-50px);
+      opacity: 0;
   }
+  to {
+      transform: translateY(0);
+      opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
   .container {
-    background: white;
-    padding: 20px 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    text-align: center;
+      padding: 20px 40px;
   }
+
   h1 {
-    font-size: 2.5rem;
-    color: #007bff;
+      font-size: 2rem;
   }
+
   p {
-    font-size: 1.2rem;
-    margin-top: 10px;
+      font-size: 1rem;
   }
+
   .button {
-    display: inline-block;
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 1rem;
-    margin-top: 15px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+      font-size: 1rem;
+      padding: 10px 20px;
   }
-  .button:hover {
-    background-color: #0056b3;
-  }
+}

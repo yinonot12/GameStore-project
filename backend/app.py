@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 from models import db
@@ -51,56 +52,118 @@ def get_games():
             'message': str(e)
         }), 500
 
-# Endpoint להוספת לקוח
-@app.route('/customers', methods=['POST'])
-def add_customer():
+# Endpoint לעריכת משחק
+@app.route('/games/<int:game_id>', methods=['PUT'])
+def update_game(game_id):
     data = request.json
-    new_customer = Customer(
-        name=data['name'],
-        email=data['email'],
-        phone=data['phone']
-    )
-    db.session.add(new_customer)
+    game = Game.query.get(game_id)
+    if not game:
+        return jsonify({'error': 'Game not found.'}), 404
+
+    game.title = data.get('title', game.title)
+    game.genre = data.get('genre', game.genre)
+    game.price = data.get('price', game.price)
+    game.quantity = data.get('quantity', game.quantity)
+
     db.session.commit()
-    return jsonify({'message': 'Customer registered successfully.'}), 201
+    return jsonify({'message': 'Game updated successfully.'}), 200
 
-# Endpoint להחזרת רשימת לקוחות
-@app.route('/customers', methods=['GET'])
-def get_customers():
-    customers = Customer.query.all()
-    customers_list = [
-        {
-            'id': customer.id,
-            'name': customer.name,
-            'email': customer.email,
-            'phone': customer.phone
-        } for customer in customers
-    ]
-    return jsonify({
-        'message': 'Customers retrieved successfully',
-        'customers': customers_list
-    }), 200
+# Endpoint למחיקת משחק
+@app.route('/games/<int:game_id>', methods=['DELETE'])
+def delete_game(game_id):
+    game = Game.query.get(game_id)
+    if not game:
+        return jsonify({'error': 'Game not found.'}), 404
 
-# Endpoint ל-Admin Login
+    db.session.delete(game)
+    db.session.commit()
+    return jsonify({'message': 'Game deleted successfully.'}), 200
+
+# Endpoint להתחברות אדמין
 @app.route('/admin/login', methods=['POST'])
 def admin_login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    
-    # חיפוש מנהל על פי שם משתמש
+
     admin = Admin.query.filter_by(username=username).first()
-    if admin and admin.verify_password(password):  # נניח שקיימת מתודה זו
-        session['admin_id'] = admin.id  # שמירת מזהה המנהל ב-session
+    if admin and admin.verify_password(password):  # מתודה לאימות סיסמה
+        session['admin_id'] = admin.id
         return jsonify({'message': 'Admin logged in successfully.'}), 200
     else:
         return jsonify({'error': 'Invalid credentials.'}), 401
 
-# Endpoint ל-Admin Logout
 @app.route('/admin/logout', methods=['POST'])
 def admin_logout():
     session.pop('admin_id', None)
     return jsonify({'message': 'Admin logged out successfully.'}), 200
+
+@app.route('/loan', methods=['POST'])
+def loan_game():
+    try:
+        data = request.json
+        customer_id = data['customer_id']
+        game_id = data['game_id']
+        
+        customer = Customer.query.get(customer_id)
+        game = Game.query.get(game_id)
+        
+        if not customer or not game:
+            return jsonify({'error': 'Customer or game not found'}), 404
+        
+        loan = Loan(customer_id=customer_id, game_id=game_id)
+        db.session.add(loan)
+        db.session.commit()
+        
+        return jsonify({'message': f"Game '{game.title}' successfully loaned to customer '{customer.name}'"}), 201
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to loan the game',
+            'message': str(e)
+        }), 500
+
+@app.route('/return_game/<int:loan_id>', methods=['POST'])
+def return_game(loan_id):
+    try:
+        loan = Loan.query.get(loan_id)
+        if not loan:
+            return jsonify({'error': 'Loan not found with this ID'}), 404
+        
+        loan.return_date = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({'message': f"Game '{loan.game.title}' successfully returned by '{loan.customer.name}'"}), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to return the game',
+            'message': str(e)
+        }), 500
+
+@app.route('/loaned_games', methods=['GET'])
+def display_loaned_games():
+    try:
+        loans = Loan.query.filter(Loan.return_date == None).all()
+        if not loans:
+            return jsonify({'message': 'No games are currently loaned out'}), 404
+        
+        loan_list = [
+            {
+                'game': loan.game.title,
+                'customer': loan.customer.name,
+                'loan_date': loan.loan_date
+            } for loan in loans
+        ]
+        
+        return jsonify({
+            'message': 'Currently loaned games',
+            'loans': loan_list
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to retrieve loaned games',
+            'message': str(e)
+        }), 500
+
 
 if __name__ == '__main__':
     with app.app_context():

@@ -2,9 +2,9 @@ from . import db
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    UserName = db.Column(db.string(25), primary_key=False)
-    password = db.Column(db.string(15),primary_key=False)
-    email = db.Column(db.string(25), primary_key=False)
+    UserName = db.Column(db.String(25), primary_key=False)
+    password = db.Column(db.String(15),primary_key=False)
+    email = db.Column(db.String(25), primary_key=False)
     
     def __init__(self, username, password):
         self.username = username
