@@ -1,8 +1,9 @@
+from sqlalchemy import String
 from . import db
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    UserName = db.Column(db.String(25), primary_key=False)
+    username = db.Column(String(100), nullable=False)
     password = db.Column(db.String(15),primary_key=False)
     email = db.Column(db.String(25), primary_key=False)
     

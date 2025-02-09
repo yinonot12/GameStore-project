@@ -1,94 +1,120 @@
+/* General Styles */
 body {
   font-family: 'Roboto', sans-serif;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  color: #fff;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f9;
+  color: #333;
+}
+
+/* Container for both login and admin panel */
+.container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  margin: 0;
-  overflow: hidden;
+  height: 100vh;
+  background-color: #f9f9f9;
 }
 
-.container {
-  background: rgba(255, 255, 255, 0.9); /* שקיפות עדינה */
-  padding: 40px 60px;
-  border-radius: 12px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  max-width: 600px;
+/* Form Styles */
+.form-card, .panel-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 400px;
   text-align: center;
-  transform: translateY(-50px);
-  animation: slideIn 0.6s ease-out forwards;
 }
 
-h1 {
-  font-size: 3rem;
-  color: #007bff;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: bold;
+/* Input Field */
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-p {
-  font-size: 1.3rem;
-  margin-top: 15px;
-  line-height: 1.6;
-  color: #555;
+.input-field:focus {
+  border-color: #3498db;
+  outline: none;
 }
 
-.button {
-  display: inline-block;
-  background-color: #007bff;
-  color: white;
-  padding: 12px 25px;
+/* Buttons */
+.btn-primary, .btn-secondary {
+  width: 100%;
+  padding: 10px;
   border: none;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 1.1rem;
-  margin-top: 20px;
+  border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+  margin-top: 10px;
 }
 
-.button:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+.btn-primary {
+  background-color: #3498db;
+  color: white;
 }
 
-.button:active {
-  transform: scale(0.98);
-  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+.btn-primary:hover {
+  background-color: #2980b9;
 }
 
-@keyframes slideIn {
-  from {
-      transform: translateY(-50px);
-      opacity: 0;
-  }
-  to {
-      transform: translateY(0);
-      opacity: 1;
-  }
+.btn-secondary {
+  background-color: #e74c3c;
+  color: white;
 }
 
+.btn-secondary:hover {
+  background-color: #c0392b;
+}
+
+/* Games List */
+.games-list {
+  margin-top: 20px;
+}
+
+.game-card {
+  background-color: #ecf0f1;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-card h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.game-card p {
+  margin: 5px 0;
+  color: #7f8c8d;
+}
+
+.game-card button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.game-card button:hover {
+  background-color: #2ecc71;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .container {
-      padding: 20px 40px;
+      flex-direction: column;
+      padding: 20px;
   }
 
-  h1 {
-      font-size: 2rem;
-  }
-
-  p {
-      font-size: 1rem;
-  }
-
-  .button {
-      font-size: 1rem;
-      padding: 10px 20px;
+  .form-card, .panel-card {
+      width: 100%;
   }
 }

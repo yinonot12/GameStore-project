@@ -8,8 +8,8 @@ from models.game import Game
 from models.loan import Loan
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # החלף במפתח סודי אמיתי
 CORS(app, resources={r"/*": {"origins": "*"}})
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game_store.db'
 db.init_app(app)
@@ -78,20 +78,19 @@ def delete_game(game_id):
     db.session.delete(game)
     db.session.commit()
     return jsonify({'message': 'Game deleted successfully.'}), 200
+users = {"admin": "password123"}  # Example admin credentials
 
-# Endpoint להתחברות אדמין
 @app.route('/admin/login', methods=['POST'])
 def admin_login():
-    data = request.json
+    data = request.get_json()  
     username = data.get('username')
     password = data.get('password')
-
-    admin = Admin.query.filter_by(username=username).first()
-    if admin and admin.verify_password(password):  # מתודה לאימות סיסמה
-        session['admin_id'] = admin.id
-        return jsonify({'message': 'Admin logged in successfully.'}), 200
+    
+    if username in users and users[username] == password:
+        return jsonify({"message": "Login successful!"}), 200
     else:
-        return jsonify({'error': 'Invalid credentials.'}), 401
+        return jsonify({"message": "Login failed. Please check your credentials."}), 401
+
 
 @app.route('/admin/logout', methods=['POST'])
 def admin_logout():
@@ -168,4 +167,4 @@ def display_loaned_games():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+        app.run(debug=True, host='localhost', port=7000)
