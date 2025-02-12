@@ -3,9 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask import request, jsonify, session
 from models import db
-from models.admin import Admin
-from models.game import Game
-from models.Customer import Customer
+
 
 
 app = Flask(__name__)
@@ -17,11 +15,13 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 CORS(app, origins="http://127.0.0.1:5500", supports_credentials=True)
 
 class Admin(db.Model):
+    __tablename__ = 'admin'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
 
 class Customer(db.Model):
+    __tablename__ = 'customer'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -29,6 +29,7 @@ class Customer(db.Model):
     games = db.relationship('Game', backref='customer', lazy=True)
 
 class Game(db.Model):
+    __tablename__ = 'game'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     genre = db.Column(db.String(50), nullable=False)
@@ -36,7 +37,6 @@ class Game(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     loan_status = db.Column(db.Boolean, default=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=True)
-
 
 
 
@@ -139,4 +139,5 @@ def apply_cors_headers(response):
 if __name__ == "__main__":
    app.run(debug=True, port=5501)
    with app.app_context():
-        db.create_all() 
+     db.create_all()
+     print("Database tables created successfully!")
