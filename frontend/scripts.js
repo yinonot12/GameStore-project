@@ -4,24 +4,36 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    
-    const response = await fetch("http://127.0.0.1:5501/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-    });
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-    const data = await response.json();
-    if (response.ok) {
-        document.getElementById("login-container").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        loadGames();
-        loadLoanedGames();
-    } else {
-        alert(data.message);
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            // Load initial data
+            loadGames();
+            loadLoanedGames();
+        } else {
+            alert('Invalid credentials');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Login failed. Please check your credentials and try again.');
     }
 }
 

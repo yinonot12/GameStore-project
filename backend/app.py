@@ -5,7 +5,7 @@ from flask import request, jsonify, session
 from models import db
 from models.admin import Admin
 from models.Customer import Customer
-from models.game import game
+from models.game import Game
 
 
 app = Flask(__name__)
@@ -14,10 +14,31 @@ db.init_app(app)
 app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
-CORS(app, origins="http://127.0.0.1:5500", supports_credentials=True)
 
 
+CORS(app, 
+     resources={r"/*": {"origins": ["http://127.0.0.1:5500", "http://127.0.0.1:5502"]}},
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
+@app.after_request
+def apply_cors_headers(response):
+    origin = request.headers.get('Origin')
+    allowed_origins = ["http://127.0.0.1:5500", "http://127.0.0.1:5502"]
+    
+    if origin in allowed_origins:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
+        response.headers['Access-Control-Expose-Headers'] = '*'
+        response.headers["Access-Control-Max-Age"] = "3600"
+    
+    if request.method == 'OPTIONS':
+        response.headers['Access-Control-Max-Age'] = '1'
+    
+    return response
 
 @app.route('/')
 def home():
@@ -106,13 +127,7 @@ def manage_games():
         db.session.commit()
         return jsonify({"message": "Game added successfully"}), 201
 
-@app.after_request
-def apply_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "http://127.0.0.1:5500"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    return response
+
 
 
 if __name__ == "__main__":
@@ -120,3 +135,5 @@ if __name__ == "__main__":
    with app.app_context():
      db.create_all()
      print("Database tables created successfully!")
+     print(Admin.query.all())
+

@@ -5,43 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Store Management</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script defer src="scripts.js"></script>
 </head>
 <body>
-    <div id="login-container">
-        <h2>Admin Login</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-    </div>
-    
-    <div id="dashboard" style="display:none;">
-        <h2>Game Store Dashboard</h2>
-        <button onclick="logout()">Logout</button>
+    <div class="container">
+        <div id="login-container" class="form-card">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Please login to access the admin dashboard</p>
+            <input type="text" id="username" placeholder="Username" class="input-field">
+            <input type="password" id="password" placeholder="Password" class="input-field">
+            <button onclick="login()" class="btn-primary">Login</button>
+        </div>
         
-        <h3>Games Inventory</h3>
-        <ul id="games-list"></ul>
-        
-        <h3>Add New Game</h3>
-        <input type="text" id="game-title" placeholder="Title">
-        <input type="text" id="game-genre" placeholder="Genre">
-        <input type="number" id="game-price" placeholder="Price">
-        <input type="number" id="game-quantity" placeholder="Quantity">
-        <button onclick="addGame()">Add Game</button>
-        
-        <h3>Register Customer</h3>
-        <input type="text" id="customer-name" placeholder="Name">
-        <input type="email" id="customer-email" placeholder="Email">
-        <input type="text" id="customer-phone" placeholder="Phone">
-        <button onclick="registerCustomer()">Register</button>
-        
-        <h3>Loan a Game</h3>
-        <input type="number" id="loan-game-id" placeholder="Game ID">
-        <input type="number" id="loan-customer-id" placeholder="Customer ID">
-        <button onclick="loanGame()">Loan Game</button>
-        
-        <h3>Loaned Games</h3>
-        <ul id="loaned-games-list"></ul>
+        <div id="dashboard" class="panel-card" style="display:none;">
+            <div class="dashboard-header">
+                <h2>Game Store Dashboard</h2>
+                <button onclick="logout()" class="btn-secondary">Logout</button>
+            </div>
+            
+            <section class="inventory-section">
+                <h3>Games Inventory</h3>
+                <ul id="games-list" class="games-list"></ul>
+                
+                <div class="add-game-form">
+                    <h3>Add New Game</h3>
+                    <input type="text" id="game-title" placeholder="Game Title" class="input-field">
+                    <input type="text" id="game-genre" placeholder="Game Genre" class="input-field">
+                    <input type="number" id="game-price" placeholder="Price ($)" step="0.01" min="0" class="input-field">
+                    <input type="number" id="game-quantity" placeholder="Available Quantity" min="0" class="input-field">
+                    <button onclick="addGame()" class="btn-primary">Add New Game</button>
+                </div>
+            </section>
+            
+            <section class="customer-section">
+                <h3>Customer Registration</h3>
+                <div class="customer-form">
+                    <input type="text" id="customer-name" placeholder="Customer Name" class="input-field">
+                    <input type="email" id="customer-email" placeholder="Email Address" class="input-field">
+                    <input type="tel" id="customer-phone" placeholder="Phone Number" class="input-field">
+                    <button onclick="registerCustomer()" class="btn-primary">Register Customer</button>
+                </div>
+            </section>
+            
+            <section class="loan-section">
+                <h3>Game Loan Management</h3>
+                <div class="loan-form">
+                    <input type="number" id="loan-game-id" placeholder="Enter Game ID" min="1" class="input-field">
+                    <input type="number" id="loan-customer-id" placeholder="Enter Customer ID" min="1" class="input-field">
+                    <button onclick="loanGame()" class="btn-primary">Process Loan</button>
+                </div>
+                
+                <div class="loaned-games">
+                    <h3>Currently Loaned Games</h3>
+                    <ul id="loaned-games-list" class="loaned-games-list"></ul>
+                </div>
+                
+                <div class="return-form">
+                    <h3>Return Game</h3>
+                    <input type="number" id="return-game-id" placeholder="Enter Game ID to Return" min="1" class="input-field">
+                    <button onclick="returnGame()" class="btn-primary">Process Return</button>
+                </div>
+            </section>
+        </div>
     </div>
 </body>
 </html>

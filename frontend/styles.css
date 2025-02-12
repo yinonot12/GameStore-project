@@ -1,10 +1,12 @@
 /* General Styles */
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f9;
-  color: #333;
+  background: linear-gradient(120deg, #f6f9fc 0%, #e2e8f0 50%, #eef2f7 100%);
+  color: #2d3748;
+  line-height: 1.7;
+  min-height: 100vh;
 }
 
 /* Container for both login and admin panel */
@@ -12,109 +14,150 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f9f9f9;
+  min-height: 100vh;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(15px);
+  padding: 3rem;
 }
 
 /* Form Styles */
 .form-card, .panel-card {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 400px;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1),
+              0 5px 15px rgba(0, 0, 0, 0.05);
+  width: 480px;
   text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-card:hover, .panel-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12),
+              0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
 /* Input Field */
 .input-field {
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8fafc;
 }
 
 .input-field:focus {
-  border-color: #3498db;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.2);
   outline: none;
+  transform: scale(1.02);
 }
 
 /* Buttons */
 .btn-primary, .btn-secondary {
   width: 100%;
-  padding: 10px;
+  padding: 14px 28px;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .btn-primary {
-  background-color: #3498db;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 50%, #2c5282 100%);
   color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #2980b9;
+  background: linear-gradient(135deg, #3182ce 0%, #2c5282 50%, #2a4365 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(66, 153, 225, 0.4);
 }
 
 .btn-secondary {
-  background-color: #e74c3c;
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 50%, #c53030 100%);
   color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary:hover {
-  background-color: #c0392b;
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 50%, #9b2c2c 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(229, 62, 62, 0.4);
 }
 
 /* Games List */
 .games-list {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .game-card {
-  background-color: #ecf0f1;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 25px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(237, 242, 247, 0.8);
+}
+
+.game-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
 .game-card h3 {
   margin: 0;
-  font-size: 18px;
-  color: #2c3e50;
+  font-size: 22px;
+  color: #2d3748;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .game-card p {
-  margin: 5px 0;
-  color: #7f8c8d;
+  margin: 10px 0;
+  color: #4a5568;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .game-card button {
-  background-color: #27ae60;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 50%, #2f855a 100%);
   color: white;
   border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .game-card button:hover {
-  background-color: #2ecc71;
+  background: linear-gradient(135deg, #38a169 0%, #2f855a 50%, #276749 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(56, 161, 105, 0.4);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
-      flex-direction: column;
-      padding: 20px;
+    flex-direction: column;
+    padding: 1.5rem;
   }
 
   .form-card, .panel-card {
-      width: 100%;
+    width: 100%;
+    padding: 2rem;
   }
 }
