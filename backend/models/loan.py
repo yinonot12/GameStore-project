@@ -1,6 +1,5 @@
 from datetime import datetime
 from models import db
-from models.Customer import Customer
 
 class Loan(db.Model):
     __tablename__ = 'loans'
