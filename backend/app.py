@@ -1,139 +1,138 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask import request, jsonify, session
 from models import db
 from models.admin import Admin
-from models.Customer import Customer
 from models.game import Game
 
-
 app = Flask(__name__)
+app.secret_key = 'your-secret-key-here'
+
+# Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game_store.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize db with app
 db.init_app(app)
-app.config['SESSION_COOKIE_HTTPONLY'] = False
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
+# Import models after db initialization
+from models.admin import Admin
+from models.game import Game
 
+# CORS setup
+CORS(app)
 
-CORS(app, 
-     resources={r"/*": {"origins": ["http://127.0.0.1:5500", "http://127.0.0.1:5502"]}},
-     supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization"],
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-
-@app.after_request
-def apply_cors_headers(response):
-    origin = request.headers.get('Origin')
-    allowed_origins = ["http://127.0.0.1:5500", "http://127.0.0.1:5502"]
-    
-    if origin in allowed_origins:
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
-        response.headers['Access-Control-Expose-Headers'] = '*'
-        response.headers["Access-Control-Max-Age"] = "3600"
-    
-    if request.method == 'OPTIONS':
-        response.headers['Access-Control-Max-Age'] = '1'
-    
-    return response
-
-@app.route('/')
-def home():
-    return "Game Store API is running!"
-
-@app.route('/login', methods=['OPTIONS', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'OPTIONS':
-        return jsonify({"message": "OK"}), 200
-    data = request.json
-    admin = Admin.query.filter_by(username=data['username'], password=data['password']).first()
-    if admin:
-        session['admin_id'] = admin.id
-        return jsonify({"message": "Login successful"}), 200
-    return jsonify({"message": "Invalid credentials"}), 401
-
-
-@app.route('/logout', methods=['OPTIONS', 'POST'])
-def logout():
-    if request.method == 'OPTIONS':
-        return jsonify({"message": "OK"}), 200
-    session.pop('admin_id', None)
-    return jsonify({"message": "Logged out"}), 200
-
-
-@app.route('/loans', methods=['GET'])
-def view_loans():
-    games = Game.query.filter_by(loan_status=True).all()
-    return jsonify([{ "title": g.title, "customer": g.customer.name } for g in games])
-
-@app.route('/customers', methods=['OPTIONS', 'POST'])
-def add_customer():
-    if request.method == 'OPTIONS':
-        return jsonify({"message": "OK"}), 200
-    data = request.json
-    new_customer = Customer(name=data['name'], email=data['email'], phone=data['phone'])
-    db.session.add(new_customer)
-    db.session.commit()
-    return jsonify({"message": "Customer registered successfully"}), 201
-
-
-@app.route('/loans', methods=['OPTIONS', 'POST', 'GET'])
-def loan_game():
-    if request.method == 'OPTIONS':
-        return jsonify({"message": "OK"}), 200
-    if request.method == 'POST':
+    try:
         data = request.json
-        game = Game.query.get(data['game_id'])
-        customer = Customer.query.get(data['customer_id'])
-        if game and customer and not game.loan_status:
-            game.loan_status = True
-            game.customer_id = customer.id
-            db.session.commit()
-            return jsonify({"message": "Game loaned successfully"}), 200
-        return jsonify({"message": "Invalid request or game already loaned"}), 400
+        admin = Admin.query.filter_by(username=data['username'], password=data['password']).first()
+        
+        if admin:
+            return jsonify({"message": "Login successful", "success": True}), 200
+        return jsonify({"message": "Invalid credentials", "success": False}), 401
+    except Exception as e:
+        print(f"Login error: {str(e)}")
+        return jsonify({"message": "Login failed", "success": False}), 500
 
-    if request.method == 'GET':
-        games = Game.query.filter_by(loan_status=True).all()
-        return jsonify([{ "title": g.title, "customer": g.customer.name } for g in games])
-
-@app.route('/games/<int:game_id>', methods=['OPTIONS', 'DELETE'])
-def delete_game(game_id):
-    if request.method == 'OPTIONS':
-        return jsonify({"message": "OK"}), 200
-    game = Game.query.get(game_id)
-    if game:
-        db.session.delete(game)
-        db.session.commit()
-        return jsonify({"message": "Game deleted"}), 200
-    return jsonify({"message": "Game not found"}), 404
-
-@app.route('/games', methods=['OPTIONS', 'GET', 'POST'])
-def manage_games():
-    if request.method == 'OPTIONS':
-        return jsonify({"message": "OK"}), 200
-    if request.method == 'GET':
-        if 'admin_id' not in session:
-            return jsonify({"error": "Unauthorized access"}), 403
+@app.route('/games', methods=['GET'])
+def get_games():
+    try:
         games = Game.query.all()
-        return jsonify([{ "id": g.id, "title": g.title, "genre": g.genre, "price": g.price, "quantity": g.quantity, "loan_status": g.loan_status } for g in games])
-    
-    if request.method == 'POST':
+        return jsonify([{
+            'id': game.id,
+            'title': game.title,
+            'genre': game.genre,
+            'price': game.price,
+            'quantity': game.quantity
+        } for game in games])
+    except Exception as e:
+        print(f"Error getting games: {str(e)}")
+        return jsonify({"error": "Failed to get games"}), 500
+
+@app.route('/games', methods=['POST'])
+def add_game():
+    try:
         data = request.json
-        new_game = Game(title=data['title'], genre=data['genre'], price=data['price'], quantity=data['quantity'])
+        print("Received data:", data)  # Debug print
+        
+        # Validate data
+        if not all(key in data for key in ['title', 'genre', 'price', 'quantity']):
+            return jsonify({"error": "Missing required fields"}), 400
+            
+        try:
+            price = float(data['price'])
+            quantity = int(data['quantity'])
+        except ValueError:
+            return jsonify({"error": "Invalid price or quantity format"}), 400
+
+        new_game = Game(
+            title=str(data['title']).strip(),
+            genre=str(data['genre']).strip(),
+            price=price,
+            quantity=quantity
+        )
+        
         db.session.add(new_game)
         db.session.commit()
-        return jsonify({"message": "Game added successfully"}), 201
+        print("Game added successfully:", new_game.title)  # Debug print
+        return jsonify({
+            "message": "Game added successfully", 
+            "success": True,
+            "game": {
+                "id": new_game.id,
+                "title": new_game.title,
+                "genre": new_game.genre,
+                "price": new_game.price,
+                "quantity": new_game.quantity
+            }
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error adding game: {str(e)}")  # Debug print
+        return jsonify({"error": f"Failed to add game: {str(e)}"}), 500
 
+@app.route('/games/<int:game_id>', methods=['PUT'])
+def update_game(game_id):
+    try:
+        game = Game.query.get_or_404(game_id)
+        data = request.json
+        
+        game.title = data['title']
+        game.genre = data['genre']
+        game.price = float(data['price'])
+        game.quantity = int(data['quantity'])
+        
+        db.session.commit()
+        return jsonify({"message": "Game updated successfully", "success": True})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating game: {str(e)}")
+        return jsonify({"error": "Failed to update game"}), 500
 
-
+@app.route('/games/<int:game_id>', methods=['DELETE'])
+def delete_game(game_id):
+    try:
+        game = Game.query.get_or_404(game_id)
+        db.session.delete(game)
+        db.session.commit()
+        return jsonify({"message": "Game deleted successfully", "success": True})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting game: {str(e)}")
+        return jsonify({"error": "Failed to delete game"}), 500
 
 if __name__ == "__main__":
-   app.run(debug=True, port=5501)
-   with app.app_context():
-     db.create_all()
-     print("Database tables created successfully!")
-     print(Admin.query.all())
+    with app.app_context():
+        db.create_all()
+        print("Database initialized successfully!")
+        
+        # Create default admin if not exists
+        admin = Admin.query.filter_by(username='yinon').first()
+        if not admin:
+            default_admin = Admin(username='yinon', password='admin123')
+            db.session.add(default_admin)
+            db.session.commit()
+            print("Default admin created successfully!")
+    
+    app.run(debug=True, port=5501)
 
