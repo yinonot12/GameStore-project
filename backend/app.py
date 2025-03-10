@@ -18,9 +18,32 @@ db.init_app(app)
 from models.admin import Admin
 from models.game import Game
 
-# CORS setup
-CORS(app)
+from flask_cors import CORS
 
+CORS(app, origins=["http://127.0.0.1:5510"], supports_credentials=True)
+
+@app.route('/games', methods=['OPTIONS', 'GET'])
+def handle_games():
+    if request.method == 'OPTIONS':
+        response = jsonify({"message": "CORS Preflight OK"})
+        response.headers.add("Access-Control-Allow-Origin", "http://127.0.0.1:5510")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 200
+
+    games = Game.query.all()
+    games_list = [
+        {
+            "id": game.id,
+            "title": game.title,
+            "genre": game.genre,
+            "price": game.price,
+            "quantity": game.quantity
+        }
+        for game in games
+    ]
+    return jsonify(games_list), 200
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -34,7 +57,7 @@ def login():
         print(f"Login error: {str(e)}")
         return jsonify({"message": "Login failed", "success": False}), 500
 
-@app.route('/games', methods=['GET'])
+@app.route('/games/', methods=['GET'])
 def get_games():
     try:
         games = Game.query.all()
@@ -49,7 +72,7 @@ def get_games():
         print(f"Error getting games: {str(e)}")
         return jsonify({"error": "Failed to get games"}), 500
 
-@app.route('/games', methods=['POST'])
+@app.route('/games/', methods=['POST'])
 def add_game():
     try:
         data = request.json
@@ -120,6 +143,21 @@ def delete_game(game_id):
         db.session.rollback()
         print(f"Error deleting game: {str(e)}")
         return jsonify({"error": "Failed to delete game"}), 500
+
+@app.route('/games/<int:game_id>', methods=['GET'])
+def get_game(game_id):
+    try:
+        game = Game.query.get_or_404(game_id)
+        return jsonify({
+            'id': game.id,
+            'title': game.title,
+            'genre': game.genre,
+            'price': game.price,
+            'quantity': game.quantity
+        }), 200
+    except Exception as e:
+        print(f"Error getting game: {str(e)}")
+        return jsonify({"error": "Failed to get game"}), 500
 
 if __name__ == "__main__":
     with app.app_context():

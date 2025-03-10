@@ -6,6 +6,15 @@ const fetchConfig = {
     }
 };
 
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        loadGames();
+    
+    }
+});
+
 async function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -52,7 +61,6 @@ async function loadGames() {
         displayGames(games);
     } catch (error) {
         console.error('Error loading games:', error);
-        alert('Failed to load games');
     }
 }
 
@@ -238,20 +246,13 @@ function logout() {
     document.getElementById('dashboard').style.display = 'none';
 }
 
-async function loanGame() {
-    // Implementation for loaning games
-}
 
-async function returnGame() {
-    // Implementation for returning games
-}
 
 // Initialize when the document is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Scripts loaded successfully');
 });
 
-// Helper function to fetch a single game
 async function fetchGame(gameId) {
     const response = await fetch(`${API_BASE_URL}/games/${gameId}`, {
         method: 'GET',
@@ -261,72 +262,4 @@ async function fetchGame(gameId) {
     });
     return response.json();
 }
-
-async function loadLoanedGames() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/loans`, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const loanedGamesList = document.getElementById("loaned-games-list");
-        loanedGamesList.innerHTML = "";
-
-        if (response.ok) {
-            const loans = await response.json();
-            loans.forEach(loan => {
-                const li = document.createElement("li");
-                li.textContent = `${loan.title} loaned to ${loan.customer}`;
-                loanedGamesList.appendChild(li);
-            });
-        } else {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-    } catch (error) {
-        console.error("Failed to load loaned games:", error);
-    }
-}
-
-async function loanGame() {
-    const gameId = document.getElementById("loan-game-id").value;
-    const customerId = document.getElementById("loan-customer-id").value;
-    
-    const response = await fetch(`${API_BASE_URL}/loans`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ game_id: gameId, customer_id: customerId })
-    });
-    
-    if (response.ok) {
-        loadLoanedGames();
-    } else {
-        console.error("Failed to loan game.");
-    }
-}
-
-async function getLoans() {
-    const response = await fetch(`${API_BASE_URL}/loans`, {
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        method: 'GET'
-    });
-    return await response.json();
-}
-
-async function addLoan(data) {
-    const response = await fetch(`${API_BASE_URL}/loans`, {
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        method: 'POST',
-        body: JSON.stringify(data)
-    });
-    return await response.json();
-}
-
 
